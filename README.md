@@ -2,7 +2,6 @@
 
 ![NodeJS](https://img.shields.io/badge/Node.js-18.x%20%7C%2020.x-green)
 ![Playwright](https://img.shields.io/badge/Playwright-v1.48+-blue)
-![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-lightgrey)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
 
 ## 🏆 Status do Projeto: Completo (Fase 21 - Revisão Final)
@@ -239,16 +238,6 @@ Este é o arquivo principal de configuração do Playwright. As principais seç�
 - **workers**: Número de workers paralelos
 - **projects**: Configurações por navegador/dispositivo
 - **reporter**: Configuração de relatórios
-
-### Integração Contínua (CI/CD)
-
-Este projeto possui um workflow do **GitHub Actions** (`.github/workflows/playwright.yml`) já configurado que:
-
-- Executa os testes automaticamente a cada Push ou Pull Request
-- Testa em múltiplas versões do Node.js
-- Testa as execuções em diferentes navegadores e dispositivos mobile
-- Faz upload automático dos relatórios, traces e screenshots em caso de falha
-- Comenta os resultados diretamente no PR
 
 ### package.json
 
