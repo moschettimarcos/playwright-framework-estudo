@@ -325,10 +325,6 @@ PWDEBUG=1 npm test
 - GitHub: https://github.com/microsoft/playwright
 - Discord: https://discord.gg/playwright
 
-### Exemplos
-
-- Exemplos oficiais: https://github.com/microsoft/playwright/examples
-
 ## 🤝 Contribuindo
 
 Embora seja um projeto de estudo avançado/portfólio, sinta-se à vontade para:
@@ -348,12 +344,6 @@ MIT License - Livre para uso educacional e comercial.
 - GitHub: [@moschettimarcos](https://github.com/moschettimarcos)
 - LinkedIn: [marcos-moschetti](https://www.linkedin.com/in/marcos-moschetti/)
 - Portfólio: [moschettimarcos.github.io](https://moschettimarcos.github.io/)
-
-## 🙏 Agradecimentos
-
-- Microsoft pelo desenvolvimento do Playwright
-- Comunidade Playwright pelo suporte
-- Todos que contribuem para o projeto
 
 ---
 
