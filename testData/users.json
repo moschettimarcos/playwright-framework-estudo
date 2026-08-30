@@ -1,0 +1,68 @@
+{
+  "_comment": "Arquivo de dados de teste para usuários",
+  "_description": "Este arquivo contém dados de usuários para testes",
+  "_phase": "Fase 4 - Estrutura Profissional",
+  
+  "validUsers": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "Admin123!",
+      "email": "admin@example.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "role": "admin",
+      "status": "active"
+    },
+    {
+      "id": 2,
+      "username": "joao.silva",
+      "password": "Senha123!",
+      "email": "joao.silva@example.com",
+      "firstName": "João",
+      "lastName": "Silva",
+      "role": "user",
+      "status": "active"
+    },
+    {
+      "id": 3,
+      "username": "maria.santos",
+      "password": "Senha456!",
+      "email": "maria.santos@example.com",
+      "firstName": "Maria",
+      "lastName": "Santos",
+      "role": "user",
+      "status": "active"
+    }
+  ],
+  
+  "invalidUsers": [
+    {
+      "description": "Usuário com senha incorreta",
+      "username": "admin",
+      "password": "senha_errada",
+      "expectedError": "Usuário ou senha inválidos"
+    },
+    {
+      "description": "Usuário inexistente",
+      "username": "usuario_inexistente",
+      "password": "Senha123!",
+      "expectedError": "Usuário ou senha inválidos"
+    },
+    {
+      "description": "Campos vazios",
+      "username": "",
+      "password": "",
+      "expectedError": "Campo obrigatório"
+    }
+  ],
+  
+  "newUser": {
+    "username": "novo.usuario",
+    "password": "NovaSenha123!",
+    "email": "novo.usuario@example.com",
+    "firstName": "Novo",
+    "lastName": "Usuário",
+    "role": "user"
+  }
+}

@@ -1,0 +1,346 @@
+name: Playwright Tests
+
+# Fase do Roadmap: Fase 9 - CI/CD Integration
+
+# Este workflow executa testes Playwright em CI/CD usando GitHub Actions.
+# 
+# POR QUE USAR CI/CD:
+# + Execução automática em cada commit/PR
+# + Validação contínua do código
+# + Histórico de execuções
+# + Integração com pull requests
+# + Notificações automáticas
+# + Execução em múltiplos ambientes
+# 
+# QUANDO USAR:
+# - Pull requests
+# - Commits em main/master
+# - Scheduled runs
+# - Manual triggers
+# - Deployments
+
+# Trigger: Quando executar o workflow
+on:
+  # Executa em push para branches principais
+  push:
+    branches: [main, master, develop]
+  
+  # Executa em pull requests
+  pull_request:
+    branches: [main, master, develop]
+  
+  # Executa manualmente (disparado pelo usuário)
+  workflow_dispatch:
+  
+  # Executa agendado (ex: toda noite às 2h)
+  schedule:
+    - cron: '0 2 * * *'
+
+# Jobs: Tarefas a executar
+jobs:
+  # Job: Instalar dependências e executar testes
+  test:
+    # Nome do job
+    name: 'Playwright Tests'
+    
+    # Runner: Máquina virtual onde executa
+    runs-on: ubuntu-latest
+    
+    # Timeout: Tempo máximo de execução (evita jobs presos)
+    timeout-minutes: 60
+    
+    # Estratégia de matriz: Executa em múltiplas configurações
+    strategy:
+      fail-fast: false  # Não falha rápido (executa todos os jobs mesmo se um falhar)
+      matrix:
+        # Executa em diferentes versões do Node.js
+        node-version: [18.x, 20.x]
+        # Executa em diferentes navegadores
+        # Nota: Chromium é o padrão, Firefox e WebKit requerem instalação
+        # browser: [chromium, firefox, webkit]
+    
+    # Passos do job
+    steps:
+      
+      # Step 1: Checkout do código
+      # Objetivo: Clona o repositório para o runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Step 2: Setup do Node.js
+      # Objetivo: Instala a versão específica do Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'  # Cache do npm para acelerar instalação
+      
+      # Step 3: Instalar dependências
+      # Objetivo: Instala as dependências do projeto
+      - name: Install dependencies
+        run: npm ci
+      
+      # Step 4: Instalar Playwright Browsers
+      # Objetivo: Instala os navegadores do Playwright
+      # Por que separar: npm ci não instala navegadores por padrão
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      
+      # Step 5: Executar testes
+      # Objetivo: Executa os testes Playwright
+      # Flags:
+      #   --reporter=list: Saída no console
+      #   --reporter=html: Gera report HTML
+      #   --reporter=junit: Gera report JUnit para CI/CD
+      - name: Run Playwright tests
+        run: npx playwright test
+        env:
+          # Variáveis de ambiente para testes
+          CI: true
+          BASE_URL: https://demoqa.com
+      
+      # Step 6: Upload do HTML Report
+      # Objetivo: Salva o report HTML como artifact
+      # Por que: Permite visualização detalhada dos resultados
+      # when: always: Executa mesmo se testes falharem
+      - name: Upload HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.node-version }}
+          path: playwright-report/
+          retention-days: 30  # Mantém por 30 dias
+      
+      # Step 7: Upload do Trace Viewer
+      # Objetivo: Salva traces para debugging de falhas
+      - name: Upload Traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces-${{ matrix.node-version }}
+          path: traces/
+          retention-days: 7  # Mantém por 7 dias (traces são pesados)
+      
+      # Step 8: Upload de Screenshots
+      # Objetivo: Salva screenshots de falhas
+      - name: Upload Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-screenshots-${{ matrix.node-version }}
+          path: screenshots/
+          retention-days: 7
+      
+      # Step 9: Upload de Videos
+      # Objetivo: Salva vídeos de execução
+      - name: Upload Videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-videos-${{ matrix.node-version }}
+          path: test-results/
+          retention-days: 7
+      
+      # Step 10: Publicar resultados de teste
+      # Objetivo: Mostra resumo de testes no GitHub
+      - name: Publish Test Results
+        if: always()
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: |
+            test-results/junit.xml
+            playwright-report/junit.xml
+      
+      # Step 11: Comentário no PR com resultados
+      # Objetivo: Adiciona comentário no pull request com resumo
+      # Por que: Facilita revisão de PRs
+      - name: Comment PR with results
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const comment = `
+            ## 🎭 Playwright Test Results
+            
+            **Node Version:** ${{ matrix.node-version }}
+            **Status:** ${{ job.status }}
+            
+            ### 📊 Artifacts
+            - [HTML Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - Traces, Screenshots e Videos disponíveis nos artifacts
+            
+            ### 🔗 Links
+            - [Workflow Run](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Job: Testes em múltiplos navegadores
+  test-multi-browser:
+    name: 'Multi-Browser Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        # Executa em Chromium, Firefox e WebKit
+        browser: [chromium, firefox, webkit]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+      
+      - name: Run tests on ${{ matrix.browser }}
+        run: npx playwright test --project=${{ matrix.browser }}
+        env:
+          CI: true
+      
+      - name: Upload HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ matrix.browser }}
+          path: playwright-report/
+
+  # Job: Testes em dispositivos móveis
+  test-mobile:
+    name: 'Mobile Emulation Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        device: ['iPhone 12', 'Pixel 5']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps chromium
+      
+      - name: Run mobile tests on ${{ matrix.device }}
+        run: npx playwright test --project="Mobile ${{ matrix.device }}"
+        env:
+          CI: true
+      
+      - name: Upload HTML Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-mobile-${{ matrix.device }}
+          path: playwright-report/
+
+  # Job: Lint e Type Check
+  lint:
+    name: 'Lint and Type Check'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      # Step: Executar ESLint
+      - name: Run ESLint
+        run: npm run lint
+        continue-on-error: true  # Não falha o workflow se lint falhar
+      
+      # Step: Executar Type Check
+      - name: Run TypeScript Check
+        run: npx tsc --noEmit
+        continue-on-error: true
+
+# BOAS PRÁTICAS PARA CI/CD:
+# 
+# 1. Use cache para acelerar execuções
+#    - cache: 'npm' no setup-node
+#    - Reduz tempo de instalação de dependências
+# 
+# 2. Use fail-fast: false em matriz
+#    - Executa todos os jobs mesmo se um falhar
+#    - Permite ver todos os resultados
+# 
+# 3. Use if: always() para uploads
+#    - Upload de artifacts mesmo se testes falharem
+#    - Permite debugging de falhas
+# 
+# 4. Configure retention-days
+#    - Limpa artifacts antigos automaticamente
+#    - Economiza espaço no GitHub
+# 
+# 5. Use variáveis de ambiente
+#    - CI: true para configurações específicas de CI
+#    - BASE_URL para ambientes diferentes
+# 
+# 6. Separa jobs por propósito
+#    - Testes principais
+#    - Multi-browser
+#    - Mobile
+#    - Lint
+# 
+# 7. Adicione comentários em PRs
+#    - Feedback rápido para desenvolvedores
+#    - Facilita revisão de código
+# 
+# 8. Use scheduled runs
+#    - Executa testes regularmente
+#    - Detecta regressões
+# 
+# COMO USAR:
+# 
+# 1. Crie o arquivo .github/workflows/playwright.yml
+# 2. Commit e push para o repositório
+# 3. O workflow executa automaticamente
+# 4. Veja resultados na aba Actions do GitHub
+# 
+# COMO DEBUGAR:
+# 
+# 1. Adicione tmate para acesso interativo:
+#    - uses: mxschmitt/action-tmate@v3
+# 
+# 2. Use --debug para modo debug:
+#    run: npx playwright test --debug
+# 
+# 3. Aumente timeout se necessário:
+#    timeout-minutes: 120
+# 
+# 4. Adicione logs para debugging:
+#    run: npx playwright test --debug

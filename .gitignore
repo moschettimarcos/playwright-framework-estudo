@@ -1,0 +1,154 @@
+# ============================================
+# GITIGNORE - Framework Playwright
+# 
+# Este arquivo define quais arquivos/diretórios
+# não devem ser versionados pelo Git.
+# 
+# Fase do Roadmap: Fase 1 - Primeiros Passos
+# ============================================
+
+# ============================================
+# DEPENDÊNCIAS
+# ============================================
+
+# node_modules: Diretório onde o npm instala as dependências
+# Por que ignorar: São arquivos gerados automaticamente pelo npm install
+# Como restaurar: Execute 'npm install' para recriar
+node_modules/
+
+# ============================================
+# ARTEFATOS DE TESTE DO PLAYWRIGHT
+# ============================================
+
+# test-results: Diretório onde o Playwright salva resultados dos testes
+# Por que ignorar: São gerados a cada execução de testes
+# Contém: traces, screenshots, vídeos, etc.
+test-results/
+
+# playwright-report: Diretório do relatório HTML do Playwright
+# Por que ignorar: É regenerado a cada execução com novos resultados
+playwright-report/
+
+# ============================================
+# ARTEFATOS DO FRAMEWORK
+# ============================================
+
+# reports: Diretório de relatórios personalizados
+# Por que ignorar: São gerados automaticamente
+reports/
+
+# screenshots: Diretório de screenshots
+# Por que ignorar: São gerados automaticamente durante testes
+screenshots/
+
+# traces: Diretório de traces do Playwright
+# Por que ignorar: São gerados automaticamente para debugging
+traces/
+
+# downloads: Diretório de arquivos baixados durante testes
+# Por que ignorar: São arquivos temporários de testes
+downloads/
+
+# logs: Diretório de logs
+# Por que ignorar: São gerados automaticamente
+logs/
+
+# ============================================
+# ARQUIVOS DO SISTEMA OPERACIONAL
+# ============================================
+
+# Windows: Arquivos de sistema do Windows
+# Por que ignorar: São específicos do Windows e não devem ser compartilhados
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS: Arquivos de sistema do macOS
+# Por que ignorar: São específicos do macOS e não devem ser compartilhados
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux: Arquivos de sistema do Linux
+# Por que ignorar: São específicos do Linux e não devem ser compartilhados
+*~
+.directory
+
+# ============================================
+# EDITORES E IDEs
+# ============================================
+
+# VS Code: Configurações do Visual Studio Code
+# Por que ignorar: Configurações pessoais de cada desenvolvedor
+# Se quiser compartilhar configurações da equipe, remova esta linha
+.vscode/
+
+# IntelliJ IDEA: Configurações do IntelliJ
+# Por que ignorar: Configurações pessoais de cada desenvolvedor
+.idea/
+
+# Sublime Text: Configurações do Sublime Text
+# Por que ignorar: Configurações pessoais de cada desenvolvedor
+*.sublime-project
+*.sublime-workspace
+
+# ============================================
+# ARQUIVOS SENSÍVEIS
+# ============================================
+
+# Arquivos com credenciais, API keys, senhas
+# Por que ignorar: Nunca devem ser commitados por segurança
+.env
+.env.local
+.env.*.local
+*.env
+credentials.json
+secrets.json
+
+# ============================================
+# ARQUIVOS DE BUILD E COMPILAÇÃO
+# ============================================
+
+# TypeScript: Arquivos JavaScript compilados
+# Por que ignorar: São gerados automaticamente do TypeScript
+*.js.map
+dist/
+build/
+
+# ============================================
+# ARQUIVOS TEMPORÁRIOS
+# ============================================
+
+# Arquivos temporários gerais
+# Por que ignorar: Não têm valor para o projeto
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# ============================================
+# COVERAGE DE TESTES
+# ============================================
+
+# coverage: Diretório de coverage de código
+# Por que ignorar: É gerado automaticamente por ferramentas de coverage
+coverage/
+
+# ============================================
+# OUTROS
+# ============================================
+
+# Logs gerais
+*.log
+
+# Arquivos de banco de dados locais
+*.db
+*.sqlite
+*.sqlite3
+
+# Arquivos comprimidos
+*.zip
+*.tar
+*.rar
+*.7z
